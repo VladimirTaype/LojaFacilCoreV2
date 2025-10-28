@@ -1,0 +1,25 @@
+﻿@model LojaFacilCoreV2.Models.Venda
+
+@{
+    ViewData["Title"] = "Excluir Venda";
+}
+
+<h2 class="text-center mb-4 text-danger">🗑️ Excluir Venda</h2>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <p class="fw-bold">Tem certeza que deseja excluir esta venda?</p>
+
+        <ul>
+            <li><strong>Cliente:</strong> @Model.UsuarioNome</li>
+            <li><strong>Data:</strong> @Model.DataVenda.ToString("dd/MM/yyyy HH:mm")</li>
+            <li><strong>Total:</strong> R$ @Model.Total.ToString("N2")</li>
+        </ul>
+
+        <form asp-action="Delete" method="post">    
+                        <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger">🗑️ Confirmar Exclusão</button>
+            <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>

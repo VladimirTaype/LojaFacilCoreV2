@@ -1,0 +1,69 @@
+﻿@model IEnumerable<LojaFacilCoreV2.Models.Venda>
+
+@{
+    ViewData["Title"] = "Vendas Registradas";
+}
+
+<h2 class="text-center mb-4">📋 Vendas Registradas</h2>
+
+@if (TempData["MensagemSucesso"] != null)
+{
+    <div class="alert alert-success text-center fw-bold">
+        @TempData["MensagemSucesso"]
+    </div>
+}
+
+@if (TempData["MensagemErro"] != null)
+{
+    <div class="alert alert-danger text-center fw-bold">
+        @TempData["MensagemErro"]
+    </div>
+}
+
+<div class="mb-3 text-start">
+    <a asp-action="Create" class="btn btn-primary">
+        ➕ Registrar Nova Venda
+    </a>
+</div>
+
+@if (Model != null && Model.Any())
+{
+    <table class="table table-striped table-hover align-middle shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Cliente</th>
+                <th>Data</th>
+                <th class="text-end">Total (R$)</th>
+                <th class="text-center">Itens</th>
+                <th class="text-center">Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var venda in Model)
+            {
+                <tr>
+                    <td>@venda.UsuarioNome</td>
+                    <td>@venda.DataVenda.ToString("dd/MM/yyyy HH:mm")</td>
+                    <td class="text-end">@venda.Total.ToString("N2")</td>
+                    <td class="text-center">
+                        @((venda.Itens != null && venda.Itens.Any()) ? venda.Itens.Count.ToString() : "0")
+                    </td>
+                    <td class="text-center">
+                        <a asp-action="Details" asp-route-id="@venda.Id" class="btn btn-info btn-sm me-1">
+                            📄 Detalhes
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@venda.Id" class="btn btn-danger btn-sm">
+                            🗑️ Excluir
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <div class="alert alert-warning text-center fw-bold mt-4">
+        ⚠️ Nenhuma venda registrada até o momento.
+    </div>
+}

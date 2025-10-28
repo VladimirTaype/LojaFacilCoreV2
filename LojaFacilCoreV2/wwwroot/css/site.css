@@ -1,0 +1,103 @@
+﻿html {
+    font-size: 14px;
+}
+
+@media (min-width: 768px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+    position: relative;
+    min-height: 100%;
+}
+
+body {
+    margin-bottom: 60px;
+}
+
+/* ======= MODO ESCURO ======= */
+body.dark-mode {
+    background-color: #121212 !important;
+    color: #f0f0f0 !important;
+}
+
+/* Campos de entrada */
+body.dark-mode input[type="text"],
+body.dark-mode input[type="password"],
+body.dark-mode input[type="email"],
+body.dark-mode input[type="number"],
+body.dark-mode textarea {
+    background-color: #1f1f1f !important;
+    color: #ffffff !important;
+    border: 1px solid #666 !important;
+}
+
+/* Corrige placeholders apagados */
+body.dark-mode ::placeholder {
+    color: #bbbbbb !important;
+}
+
+/* Labels (como “E-mail”, “Senha”, etc.) */
+body.dark-mode label {
+    color: #f8f8f8 !important;
+    font-weight: 600 !important;
+}
+
+/* Corrige título do card de login */
+body.dark-mode h2, 
+body.dark-mode h3, 
+body.dark-mode h4 {
+    color: #ffffff !important;
+}
+
+/* Corrige o card de login (fundo branco no modo escuro) */
+body.dark-mode .card {
+    background-color: #181818 !important;
+    color: #ffffff !important;
+    border: 1px solid #333 !important;
+}
+
+/* Botões */
+body.dark-mode .btn-primary {
+    background-color: #0d6efd !important;
+    color: #fff !important;
+    border: none;
+}
+
+body.dark-mode .btn-warning {
+    background-color: #ffc107 !important;
+    color: #000 !important;
+}
+
+body.dark-mode .btn-danger {
+    background-color: #dc3545 !important;
+    color: #fff !important;
+}
+
+body.dark-mode .btn-info {
+    background-color: #17a2b8 !important;
+    color: #fff !important;
+}
+
+/* Tabelas */
+body.dark-mode table {
+    background-color: #1c1c1c !important;
+    color: #f0f0f0 !important;
+    border-color: #444 !important;
+}
+
+body.dark-mode th {
+    background-color: #2a2a2a !important;
+    color: #f0f0f0 !important;
+}
+
+body.dark-mode td {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+}

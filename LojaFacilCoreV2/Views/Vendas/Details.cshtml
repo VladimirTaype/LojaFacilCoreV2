@@ -1,0 +1,45 @@
+﻿@model LojaFacilCoreV2.Models.Venda
+
+@{
+    ViewData["Title"] = "Detalhes da Venda";
+}
+
+<h2 class="text-center mb-4">📄 Detalhes da Venda</h2>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h5><strong>Cliente:</strong> @Model.UsuarioNome</h5>
+        <p><strong>Data:</strong> @Model.DataVenda.ToString("dd/MM/yyyy HH:mm")</p>
+
+        <table class="table table-bordered mt-3">
+            <thead class="table-dark">
+                <tr>
+                    <th>Produto</th>
+                    <th>Quantidade</th>
+                    <th>Preço Unitário (R$)</th>
+                    <th>Subtotal (R$)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Itens)
+                {
+                    <tr>
+                        <td>@item.Produto?.Nome</td>
+                        <td>@item.Quantidade</td>
+                        <td>@($"{item.PrecoUnitario:N2}")</td>
+                        <td>@($"{item.PrecoUnitario * item.Quantidade:N2}")</td>
+
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <h4 class="text-end mt-3">
+            <strong>Total da Venda:</strong> R$ @Model.Total.ToString("N2")
+        </h4>
+
+        <div class="text-end mt-4">
+            <a asp-action="Index" class="btn btn-secondary">⬅️ Voltar</a>
+        </div>
+    </div>
+</div>

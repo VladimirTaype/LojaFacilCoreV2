@@ -1,0 +1,164 @@
+﻿@model LojaFacilCoreV2.Models.Venda
+
+@{
+    ViewData["Title"] = "Registrar Nova Venda";
+}
+
+<div class="container mt-4">
+    <h2 class="text-center mb-4">
+        🛒 <strong>Registrar Nova Venda</strong>
+    </h2>
+
+    <form asp-action="Create" method="post" class="shadow p-4 rounded bg-light">
+        <div class="mb-3">
+            <label for="ClienteNome" class="form-label fw-bold">Nome do Cliente</label>
+            <input type="text" id="ClienteNome" name="ClienteNome" class="form-control" placeholder="Digite o nome do cliente" required />
+        </div>
+
+        <h4 class="mt-4 mb-3">🧾 Itens da Venda</h4>
+
+        <table class="table table-striped table-bordered align-middle" id="itensTabela">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>Produto</th>
+                    <th>Quantidade</th>
+                    <th>Preço Unitário (R$)</th>
+                    <th>Total (R$)</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
+
+        <div class="mb-3">
+            <button type="button" class="btn btn-outline-primary" id="addItemBtn">➕ Adicionar Item</button>
+        </div>
+
+        <div class="text-end mt-4">
+            <h5 class="fw-bold text-success">
+                Total da Venda: <span id="totalVenda">R$ 0,00</span>
+            </h5>
+        </div>
+
+        <div class="mt-4 text-end">
+            <button type="submit" class="btn btn-success px-4">
+                💾 Salvar Venda
+            </button>
+            <a asp-action="Index" class="btn btn-secondary px-4">
+                ↩️ Cancelar
+            </a>
+        </div>
+    </form>
+
+    <div id="mensagem" class="alert alert-success mt-4 d-none text-center" role="alert">
+        ✅ Venda registrada com sucesso!
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+        @Html.Raw(System.Text.Json.JsonSerializer.Serialize<object>(ViewBag.AlgumObjeto ?? new { }))
+
+            const tabela = document.querySelector("#itensTabela tbody");
+            const btnAdicionar = document.querySelector("#addItemBtn");
+            const totalVendaSpan = document.querySelector("#totalVenda");
+            const mensagem = document.querySelector("#mensagem");
+
+            // Adiciona nova linha ao clicar no botão
+            btnAdicionar.addEventListener("click", function () {
+                const novaLinha = document.createElement("tr");
+
+                // Dropdown de produtos
+                const tdProduto = document.createElement("td");
+                const selectProduto = document.createElement("select");
+                selectProduto.classList.add("form-select");
+                selectProduto.innerHTML = `
+                    <option value="">Selecione um produto</option>
+                    ${produtos.map(p => `<option value="${p.Id}" data-preco="${p.Preco}">${p.Nome}</option>`).join('')}
+                `;
+                tdProduto.appendChild(selectProduto);
+
+                // Quantidade
+                const tdQuantidade = document.createElement("td");
+                const inputQtd = document.createElement("input");
+                inputQtd.type = "number";
+                inputQtd.min = "1";
+                inputQtd.classList.add("form-control");
+                inputQtd.value = 1;
+                tdQuantidade.appendChild(inputQtd);
+
+                // Preço unitário
+                const tdPreco = document.createElement("td");
+                const precoInput = document.createElement("input");
+                precoInput.type = "text";
+                precoInput.classList.add("form-control", "text-end");
+                precoInput.disabled = true;
+                tdPreco.appendChild(precoInput);
+
+                // Total do item
+                const tdTotal = document.createElement("td");
+                const totalInput = document.createElement("input");
+                totalInput.type = "text";
+                totalInput.classList.add("form-control", "text-end");
+                totalInput.disabled = true;
+                tdTotal.appendChild(totalInput);
+
+                // Botão Remover
+                const tdAcoes = document.createElement("td");
+                const btnRemover = document.createElement("button");
+                btnRemover.type = "button";
+                btnRemover.classList.add("btn", "btn-sm", "btn-danger");
+                btnRemover.textContent = "🗑️ Remover";
+                btnRemover.addEventListener("click", () => {
+                    novaLinha.remove();
+                    atualizarTotalVenda();
+                });
+                tdAcoes.appendChild(btnRemover);
+
+                // Monta a linha
+                novaLinha.appendChild(tdProduto);
+                novaLinha.appendChild(tdQuantidade);
+                novaLinha.appendChild(tdPreco);
+                novaLinha.appendChild(tdTotal);
+                novaLinha.appendChild(tdAcoes);
+                tabela.appendChild(novaLinha);
+
+                // Atualiza preço e total ao mudar o produto
+                selectProduto.addEventListener("change", function () {
+                    const preco = parseFloat(selectProduto.selectedOptions[0].dataset.preco || 0);
+                    precoInput.value = preco.toFixed(2);
+                    atualizarLinha();
+                });
+
+                inputQtd.addEventListener("input", atualizarLinha);
+
+                function atualizarLinha() {
+                    const preco = parseFloat(precoInput.value || 0);
+                    const qtd = parseInt(inputQtd.value || 0);
+                    const total = preco * qtd;
+                    totalInput.value = total.toFixed(2);
+                    atualizarTotalVenda();
+                }
+            });
+
+            // Calcula o total geral
+            function atualizarTotalVenda() {
+                let total = 0;
+                tabela.querySelectorAll("tr").forEach(tr => {
+                    const input = tr.children[3].querySelector("input");
+                    total += parseFloat(input.value) || 0;
+                });
+                totalVendaSpan.textContent = `R$ ${total.toFixed(2)}`;
+            }
+
+            // Mostra alerta visual ao salvar
+            const form = document.querySelector("form");
+            form.addEventListener("submit", (e) => {
+                e.preventDefault();
+                mensagem.classList.remove("d-none");
+                setTimeout(() => form.submit(), 800);
+            });
+        });
+    </script>
+}

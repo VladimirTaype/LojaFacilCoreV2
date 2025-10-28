@@ -1,0 +1,133 @@
+﻿@model LojaFacilCoreV2.Models.Venda
+
+@{
+    ViewData["Title"] = "Registrar Nova Venda";
+    var produtos = ViewBag.Produtos as List<LojaFacilCoreV2.Models.Produto>;
+}
+
+<h2 class="text-center mb-4">🛍️ Registrar Nova Venda</h2>
+
+<form asp-action="Create" method="post">
+    <div class="mb-3">
+        <label class="form-label fw-bold">Nome do Cliente</label>
+        <input asp-for="UsuarioNome" class="form-control" placeholder="Digite o nome do cliente" required />
+    </div>
+
+    <h4 class="mt-4">Itens da Venda</h4>
+
+    <table class="table table-bordered mt-3" id="tabelaItens">
+        <thead class="table-dark">
+            <tr>
+                <th>Produto</th>
+                <th>Estoque</th>
+                <th>Quantidade</th>
+                <th>Preço Unitário (R$)</th>
+                <th>Subtotal (R$)</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody></tbody>
+    </table>
+
+    <button type="button" class="btn btn-outline-primary" id="btnAddItem">+ Adicionar Item</button>
+
+    <div class="mt-4 text-end">
+        <div class="mb-3">
+            <label class="fw-bold">Total da Venda (R$):</label>
+            <input type="text" id="totalGeral" class="form-control text-end fw-bold" readonly value="0,00"
+                   style="max-width: 200px; display:inline-block;" />
+        </div>
+        <button type="submit" class="btn btn-success">💾 Salvar Venda</button>
+        <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{
+        var produtosJson = System.Text.Json.JsonSerializer.Serialize(
+            ViewBag.Produtos ?? new List<LojaFacilCoreV2.Models.Produto>(),
+            new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = null }
+        );
+    }
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const produtos = JSON.parse('@Html.Raw(produtosJson)');
+
+            let contador = 0;
+
+            // Botão de adicionar item
+            document.getElementById("btnAddItem").addEventListener("click", adicionarItem);
+
+            function adicionarItem() {
+                const tbody = document.querySelector("#tabelaItens tbody");
+                const linha = document.createElement("tr");
+
+                linha.innerHTML = `
+                    <td>
+                        <select name="Itens[${contador}].ProdutoId" class="form-select" onchange="atualizarPreco(this)">
+                            <option value="">Selecione...</option>
+                            ${produtos.map(p => `
+                                <option value="${p.Id}" data-preco="${p.Preco.toString().replace('.', ',')}" data-estoque="${p.Estoque}">
+                                    ${p.Nome}
+                                </option>`).join('')}
+                        </select>
+                    </td>
+                    <td class="estoqueAtual">0</td>
+                    <td><input name="Itens[${contador}].Quantidade" type="number" value="1" min="1" class="form-control" onchange="atualizarTotal(this)" /></td>
+                    <td><input name="Itens[${contador}].PrecoUnitario" type="text" class="form-control" readonly /></td>
+                    <td class="itemTotal">0,00</td>
+                    <td><button type="button" class="btn btn-danger btn-sm" onclick="removerItem(this)">X</button></td>
+                `;
+
+                tbody.appendChild(linha);
+                contador++;
+            }
+
+            // Atualiza preço e estoque
+            window.atualizarPreco = function (select) {
+                const option = select.selectedOptions[0];
+                const preco = parseFloat(option.dataset.preco.replace(',', '.')) || 0;
+                const estoque = parseInt(option.dataset.estoque || 0);
+                const linha = select.closest("tr");
+
+                linha.querySelector("input[name*='PrecoUnitario']").value = preco.toFixed(2).replace('.', ',');
+                linha.querySelector(".estoqueAtual").innerText = estoque;
+                atualizarTotal(linha.querySelector("input[name*='Quantidade']"));
+            };
+
+            // Atualiza subtotal
+            window.atualizarTotal = function (input) {
+                const linha = input.closest("tr");
+                const qtd = parseFloat(linha.querySelector("input[name*='Quantidade']").value || 0);
+                const preco = parseFloat(linha.querySelector("input[name*='PrecoUnitario']").value.replace(',', '.')) || 0;
+                const estoque = parseInt(linha.querySelector(".estoqueAtual").innerText || 0);
+
+                if (qtd > estoque) {
+                    alert("⚠️ Quantidade maior que o estoque disponível!");
+                    linha.querySelector("input[name*='Quantidade']").value = estoque;
+                }
+
+                const subtotal = Math.min(qtd, estoque) * preco;
+                linha.querySelector(".itemTotal").innerText = subtotal.toFixed(2).replace('.', ',');
+                atualizarTotalGeral();
+            };
+
+            // Remove item
+            window.removerItem = function (botao) {
+                botao.closest("tr").remove();
+                atualizarTotalGeral();
+            };
+
+            // Atualiza total geral
+            function atualizarTotalGeral() {
+                let total = 0;
+                document.querySelectorAll(".itemTotal").forEach(td => {
+                    total += parseFloat(td.innerText.replace(',', '.')) || 0;
+                });
+                document.getElementById("totalGeral").value = total.toFixed(2).replace('.', ',');
+            }
+        });
+    </script>
+}
+
